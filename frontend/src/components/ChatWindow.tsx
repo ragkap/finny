@@ -4,24 +4,36 @@ import { useRef, useEffect, useState, useMemo } from "react";
 import type { ChatMessage } from "@/lib/types";
 import InsightCard from "./InsightCard";
 
-function renderMarkdownLinks(text: string) {
-  const parts = text.split(/(\[[^\]]+\]\([^)]+\))/g);
-  return parts.map((part, i) => {
-    const match = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
-    if (match) {
+function renderMarkdown(text: string): React.ReactNode[] {
+  // Split by markdown patterns: links, bold, italic
+  const tokens = text.split(/(\[[^\]]+\]\([^)]+\)|\*\*[^*]+\*\*|\*[^*]+\*)/g);
+  return tokens.map((token, i) => {
+    // Links: [text](url)
+    const linkMatch = token.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (linkMatch) {
       return (
         <a
           key={i}
-          href={match[2]}
+          href={linkMatch[2]}
           target="_blank"
           rel="noopener noreferrer"
           className="text-finny-primary underline hover:text-finny-primary/80"
         >
-          {match[1]}
+          {linkMatch[1]}
         </a>
       );
     }
-    return part;
+    // Bold: **text**
+    const boldMatch = token.match(/^\*\*([^*]+)\*\*$/);
+    if (boldMatch) {
+      return <strong key={i}>{boldMatch[1]}</strong>;
+    }
+    // Italic: *text*
+    const italicMatch = token.match(/^\*([^*]+)\*$/);
+    if (italicMatch) {
+      return <em key={i}>{italicMatch[1]}</em>;
+    }
+    return token;
   });
 }
 
@@ -91,7 +103,7 @@ export default function ChatWindow({ messages, onSend, isLoading }: ChatWindowPr
                   : "bg-white shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
               }`}
             >
-              <p className="whitespace-pre-wrap text-sm">{renderMarkdownLinks(msg.content)}</p>
+              <p className="whitespace-pre-wrap text-sm">{renderMarkdown(msg.content)}</p>
 
               {msg.insight_cards?.map((card, i) => (
                 <InsightCard key={i} card={card} />
