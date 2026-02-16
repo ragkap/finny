@@ -4,6 +4,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     database_url: str = "postgresql://finny:finny@localhost:5432/finny"
     firebase_credentials_path: str = "firebase-credentials.json"
+    firebase_credentials_json: str = ""  # JSON string alternative for cloud deploy
     smartkarma_mcp_base_url: str = "http://localhost:8080"
     openai_api_key: str = ""
     cors_origins: list[str] = ["http://localhost:3000"]

@@ -1,5 +1,7 @@
+import json
+
 import firebase_admin
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from firebase_admin import auth, credentials
 
@@ -13,10 +15,15 @@ def init_firebase():
     global _initialized
     if not _initialized:
         try:
-            cred = credentials.Certificate(settings.firebase_credentials_path)
-            firebase_admin.initialize_app(cred)
-        except (FileNotFoundError, ValueError):
-            # Allow running without credentials for development
+            # Prefer JSON string env var (for cloud deploys like Render)
+            if settings.firebase_credentials_json:
+                cred_dict = json.loads(settings.firebase_credentials_json)
+                cred = credentials.Certificate(cred_dict)
+                firebase_admin.initialize_app(cred)
+            else:
+                cred = credentials.Certificate(settings.firebase_credentials_path)
+                firebase_admin.initialize_app(cred)
+        except (FileNotFoundError, ValueError, json.JSONDecodeError):
             try:
                 firebase_admin.initialize_app()
             except ValueError:
