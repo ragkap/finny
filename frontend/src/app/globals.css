@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-finny-light text-finny-dark antialiased;
+  }
+  .dark body {
+    @apply bg-gray-900 text-gray-100;
+  }
+}
+
+@layer components {
+  .xp-bar {
+    @apply h-3 rounded-full bg-gradient-to-r from-finny-primary to-finny-secondary transition-all duration-700 ease-out;
+  }
+}
+
+@keyframes xp-pop {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1) translateY(-20px); opacity: 0; }
+}
+
+.xp-animation {
+  animation: xp-pop 1s ease-out forwards;
+}
